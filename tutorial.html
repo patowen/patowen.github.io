@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    
+    <title>Tutorial - Grapher Program Website</title>
+</head>
+
+<body>
+
+<ul class="header_ul">
+    <li class="header_li"><a class="button" href="index.html">Home</a></li>
+    <li class="header_li"><a class="button" href="tutorial.html">Tutorial</a></li>
+    <li class="header_li"><a class="button" href="download.html">Download</a></li>
+    <li class="header_li"><a class="button" href="changelog.html">Changelog</a></li>
+    <li class="header_li"><a class="button" href="contact.html">Contact</a></li>
+</ul>
+
+<h1>1.1- Opening the Program</h1>
+<p>The first step is to open &ldquo;<b>Grapher.jar</b>&rdquo; by double-clicking on it. If it fails to open, make sure you have Java 1.6 or 1.7 installed. You should then arrive at this screen.</p>
+<img src="images/graph/menu.png" alt="Main Menu"/>
+
+<h1>1.2- Getting Started</h1>
+<p>To start, click on the &ldquo;<b>File</b>&rdquo; menu. Several options should pop up. To verify that you have the version for the correct platform, click &ldquo;<b>New 3D Function Graph.</b>&rdquo; If a window pops up without an error message, the program is likely to work properly. Now, close the window.</p>
+<img src="images/graph/file_menu.png" alt="File Menu"/>
+<p>This time, press &ldquo;<b>File, New Function Graph</b>&rdquo; (The &ldquo;<b>New Function Graph</b>&rdquo; button in the &ldquo;<b>File</b>&rdquo; menu). In the window that opens, type &ldquo;<b>x^2</b>&rdquo; in the text field (without quotes) and click apply. You should see a parabola. Try panning around by clicking and dragging the graph with the mouse to get a better view.</p>
+<img src="images/graph/function_graph.png" alt="Function Graph"/>
+<p>Close the graph, and this time, press &ldquo;<b>File, New 3D Function Graph</b>&rdquo;. In the window that opens, type &ldquo;<b>x^2-y^2</b>&rdquo; in the text field and click apply. You should see a hyperbolic paraboloid. You can rotate the view by clicking and dragging with the mouse. When you are ready, you can read on. The rest of this document will teach you details about the program.</p>
+<img src="images/graph/function_graph_3d.png" alt="3D Function Graph"/>
+
+<h1>2.1- The Basics</h1>
+<p>In each of the nine types of graphs available to use, there are features common to all of them. Opening each type of graph displays a window of a similar format. In the menu bar, there is a &ldquo;<b>Graph</b>&rdquo; menu with an option to &ldquo;<b>Set Bounds</b>&rdquo; and a toggle option, &ldquo;<b>Show Axes</b>&rdquo;, which is on by default.</p>
+
+<p>The &ldquo;<b>Set Bounds</b>&rdquo; button opens a separate window that lets you change certain properties of the graph. These properties are established when the &ldquo;<b>Apply</b>&rdquo; button on that window is pressed.</p>
+
+<p>Also in the menu bar is a &ldquo;<b>Presets</b>&rdquo; menu which allows you to try out premade formulas. It also allows you to save a preset and load it later as a custom preset.</p>
+
+<p>Just under the menu bar is a labeled text field or a set of labeled text fields that let you define the formula(s) for the function to graph, and an &ldquo;<b>Apply</b>&rdquo; button that displays the graph after entering in the formula(s). In the center of the window is the display of the graph, which has some mouse input, depending on whether the graph is 2D or 3D.</p>
+
+<p>At the bottom of the screen is a checkbox labeled, &ldquo;<b>Mouse adjusts view</b>&rdquo;, selected by default, which toggles whether clicking and dragging the mouse will move the view around the graph. If the box is unchecked, the mouse instead alters the graph dynamically as defined by the user (see 2.3 and 2.4).</p>
+
+<h1>2.2- Formulas</h1>
+<p>Typing in a formula for the graph program is relatively straightforward. For example, as long as x and y are variables used by the graph in question, the formula, &ldquo;(3x*sin(xy))/(x+y+2)&rdquo; is a valid formula.</p>
+
+<p>The operations available for use are +, -, *, /, and ^, for addition, subtraction/negation, multiplication, division, and exponentiation, respectively. The order of operations is as expected, but exponentiation goes from left to right, which is contrary to what is most likely preferred, so use parentheses if you want the exponentiation to go from right to left.</p>
+
+<p>Numbers can be written with simple numerals (e.g. <b>2</b> or <b>0.26</b>) or with exponential notation (e.g. <b>2e12</b>).</p>
+
+<p>The available variables for use, depending on which graph type is being used, are <b>x</b>, <b>y</b>, <b>s</b>, <b>t</b>, <b>u</b>, and <b>v</b>.</p>
+
+<p>Implied multiplication is permitted between multiple variables (e.g. <b>xy</b> or <b>xx</b>) and between a number and a variable (e.g. <b>9.2x</b> or <b>3e2xy</b>).</p>
+
+<p>There are also multiple predefined functions available to use. The format for using them is the function name followed by its arguments enclosed in parentheses, separated by commas (e.g. <b>sin(x)</b> or <b>min(2x,3)</b>). The parentheses are mandatory. A few functions take no arguments because they are constants. These are the only exceptions to the parentheses rule (e.g. <b>pi</b> or <b>e</b>).</p>
+
+<p>An important thing to note is that implied multiplication is <b>NOT</b> permitted when something is being multiplied by a function or special constant. For instance, <b>3sin(x)</b> is not allowed and must be replaced by <b>3*sin(x)</b>. Even the constants do not work with implied multiplication. Although <b>3x</b> is allowed, since x is a variable, <b>3e</b> is not allowed. It must be replaced with <b>3*e</b>. A reason for this is that <b>3e-1</b> is exponential notation for 3*10^(-1), while <b>3*e-1</b> is 3 times Euler&rsquo;s number subtracted by 1. To prevent ambiguity, all special constants and functions must be multiplied with the asterisk operator.</p>
+
+<p>Below is a list of all functions and special constants (With the number of arguments shown):</p>
+<ul>
+<li><b>pi, e</b>
+<li><b>sin(x), cos(x), tan(x), sec(x), csc(x), cot(x)</b></li>
+<li><b>arcsin(x), arccos(x), arctan(x), arcsec(x), arccsc(x), arccot(x)</b></li>
+<li><b>abs(x)</b> - Absolute value</li>
+<li><b>floor(x)</b> - Greatest integer less than or equal to the argument</li>
+<li><b>ceil(x)</b> - Least integer greater than or equal to the argument</li>
+<li><b>round(x)</b> - The argument rounded to the nearest integer</li>
+<li><b>mod(x, y)</b> - x modulo y</li>
+<li><b>max(x, y, ...)</b> - The maximum of all the arguments</li>
+<li><b>min(x, y, ...)</b> - The minimum of all the arguments</li>
+<li><b>sqr(x)</b> - The argument squared (More efficient than x^2)</li>
+<li><b>sqrt(x)</b> - The square root of the argument</li>
+<li><b>exp(x)</b> - <b>e</b> raised to the power of the argument</li>
+<li><b>ln(x)</b> - The natural logarithm of the argument</li>
+</ul>
+
+<h1>2.3- 2D Graphs</h1>
+<p>A few features common to all 2D graph types, &ldquo;<b>Function Graph</b>&rdquo;, &ldquo;<b>General Graph</b>&rdquo;, and &ldquo;<b>Parametric Graph</b>&rdquo; are discussed in this section.</p>
+
+<p>The first feature discussed is the bounds window, which comes up after &ldquo;<b>Graph, Set Bounds</b>&rdquo; is selected. There are six text fields common to all 2D graph types, &ldquo;<b>x-min</b>&rdquo;, &ldquo;<b>x-max</b>&rdquo;, &ldquo;<b>y-min</b>&rdquo;, &ldquo;<b>y-max</b>&rdquo;, &ldquo;<b>x-scale</b>&rdquo;, and &ldquo;<b>y-scale</b>&rdquo;.</p>
+
+<p>The first four fields mentioned determine the part of the graph that is visible. &ldquo;<b>x-min</b>&rdquo; gives the x-coordinate of the left edge of the viewport, and &ldquo;<b>x-max</b>&rdquo; gives the x-coordinate of the right edge of the viewport. &ldquo;<b>y-min</b>&rdquo; gives the y-coordinate of the bottom edge of the viewport while &ldquo;<b>y-max</b>&rdquo; gives the y-coordinate of the top edge of the viewport.</p>
+
+<p>&ldquo;<b>x-scale</b>&rdquo; and &ldquo;<b>y-scale</b>&rdquo; determine the number of units between each marking on the x and y axes, respectively.</p>
+
+<p>The second feature discussed is how the mouse is used to adjust the graph. The mouse has two different behaviors depending on whether the &ldquo;<b>Mouse adjusts view</b>&rdquo; checkbox is selected.</p>
+
+<p>When it is selected, clicking and dragging with the left mouse button pans the view, and clicking and dragging with the right mouse button zooms into or out of the graph depending on where the mouse was clicked. Holding down <b>shift</b> while clicking and dragging is equivalent to using the right mouse button. Another way to zoom is to scroll in or out (Scrolling always works, regardless of the &ldquo;<b>Mouse adjusts view</b>&rdquo; checkbox).</p>
+
+<p>When the &ldquo;<b>Mouse adjusts view</b>&rdquo; checkbox is unchecked, clicking and/or dragging the mouse adjusts two parameters, <b>u</b> and <b>v</b>, to the <b>x</b> and <b>y</b> position of the mouse, respectively, relative to the axes. The parameters <b>u</b> and <b>v</b> can be entered into any formula to dynamically alter the graph.</p>
+
+<h1>2.4- 3D Graphs</h1>
+<p>There are a few notable differences between the user interfaces of the 2D and 3D graphs.</p>
+
+<p>The first notable difference is the display. Instead of having a white background and having two axes, it has a black background with three axes, red for <b>x</b>, green for <b>y</b>, and blue for <b>z</b>.</p>
+
+<p>The next notable difference is the way the mouse is used to adjust the graph.</p>
+
+<p>When the &ldquo;<b>Mouse adjusts view</b>&rdquo; checkbox is selected, clicking and dragging with the left mouse button rotates the camera around the graph with the camera, and clicking and dragging with the right mouse button or scrolling zooms in and out of the graph. (Scrolling always works, regardless of the &ldquo;<b>Mouse adjusts view</b>&rdquo; checkbox).</p>
+
+<p>The view is centered at the origin initially. Holding the middle mouse button down and dragging the mouse moves the camera without changing its orientation, consequently changing the point it is centered on. The Bounds menu in all 3D graphs contains an option to adjust the point the view is centered on, &ldquo;<b>x-center (view)</b>&rdquo;, &ldquo;<b>y-center (view)</b>&rdquo;, and &ldquo;<b>z-center(view)</b>&rdquo;.</p>
+
+<p>Holding down <b>shift</b> while clicking and dragging is an alternative way to zoom in or out, and holding down <b>control</b> while clicking and dragging is an alternative way to move the camera.</p>
+
+<p>When the &ldquo;<b>Mouse adjusts view</b>&rdquo; checkbox is unchecked, clicking and dragging with the mouse adjusts the u and v variables to the horizontal and vertical positions of the mouse, respectively. When the mouse is on the left edge of the viewport (area where the graph is shown), <b>u</b> is -1, and when the mouse is on the right edge of the viewport, <b>u</b> is 1. When the mouse is on the bottom of the viewport, <b>v</b> is -1, and when the mouse is at the top of the viewport, <b>v</b> is 1. Like in 2D graphs, the parameters <b>u</b> and <b>v</b> can be entered into any formula to dynamically alter the graph.</p>
+
+<h1>3.1- Function Graph</h1>
+<p>A function graph is created by choosing the &ldquo;<b>New Function Graph</b>&rdquo; option in the file menu. A function graph is a 2D graph that takes a formula with the variables <b>x</b>, <b>u</b>, and <b>v</b>, and plots how <b>y</b> changes with respect to <b>x</b> (<b>u</b> and <b>v</b> are mouse coordinates for dynamic graphs. They are valid on every graph type, so they will not be mentioned on the other sections explaining graph types). The plotting algorithm is basic, and there will be artifacts with jump discontinuities or infinite discontinuities in the function.</p>
+
+<h1>3.2- General Graph</h1>
+<p>A general graph is a 2D graph that takes a formula with the variables <b>x</b> and <b>y</b> and attempts to plot all the points where the formula equals 0. This can be used to plot equations such as x^2+y^2=9 by writing &ldquo;<b>x^2+y^2-9</b>&rdquo; in the formula bar. The algorithm used to plot the graph does remove artifacts that could be caused by infinite discontinuities and some jump discontinuities, but there are other artifacts under some circumstances.</p>
+
+<p>The algorithm for this graph is inefficient, so some lag is to be expected when attempting to dynamically change the view or alter the graph, especially when the viewing window is expanded.</p>
+
+<p>There is a bonus feature for this type of graph. When the &ldquo;<b>Graph, Invert Graph</b>&rdquo; toggle option is selected, the displayed graph becomes the original graph after a circle inversion about the unit circle.</p>
+
+<h1>3.3- Parametric Curve</h1>
+<p>A parametric curve is a 2D graph that takes two formulas with the variable <b>t</b> (One formula is for <b>x</b> and the other is for <b>y</b>). It then graphs how <b>x</b> and <b>y</b> change as <b>t</b> changes from <b>t-min</b> to <b>t-max</b>. <b>t-min</b> and <b>t-max</b> can be adjusted in the Bounds menu, as well as <b>t-resolution</b>, which chooses how many segments will be displayed. The default is for <b>t</b> to go from -1 to 1 with a resolution of 1000. Unfortunately, any jump in the parametric curve will be bridged by a line segment, like in a Function Graph.</p>
+
+<h1>3.4- 3D Function Graph</h1>
+<p>This is a 3D graph that takes a formula with the variables <b>x</b> and <b>y</b>, and graphs how <b>z</b> changes with respect to <b>x</b> and <b>y</b>.</p>
+
+<p>There are six text fields (other than the ones that adjust the view) in the Bounds menu. <b>x-min</b>, <b>x-max</b>, <b>y-min</b>, and <b>y-max</b> adjust the portions of the graph that are visible to the user. The defaults are -1 for th minimums and 1 for the maximums. These fields do not adjust the view like they do in 2D graphs. The view is mainly adjusted using the mouse instead. The <b>x-resolution</b> and <b>y-resolution</b> fields determine the detail of the graph. The default for both fields is 50, which is high enough for most purposes. They may need increasing in graphs with lots of detail, though. Do not adjust both fields past 1000, or you may experience excessive lag, and the application may freeze or crash.</p>
+
+<p>Using formulas with discontinuities is not recommended with any 3D graphs because they will most likely form a dark wall bridging the discontinuity and obstructing the view of the graph. Also, singular points will create dark spots on the graph, but they are more ignorable.</p>
+
+<h1>3.5- 3D Parametric Curve</h1>
+<p>This is a 3D graph that takes three formulas with the variable <b>t</b>, and graphs how <b>x</b>, <b>y</b>, and <b>z</b> change with respect <b>t</b>. By default, t goes from -1 to 1, and has a resolution of 1000, but that can be changed in the Bounds menu.</p>
+
+<h1>3.6- 3D Parametric Surface</h1>
+<p>This is a 3D graph that takes three formulas with the variables <b>s</b> and <b>t</b>, and graphs how <b>x</b>, <b>y</b>, and <b>z</b> change with respect to <b>s</b> and <b>t</b>. By default, s and t each go from -1 to 1, and they have a resolution of 50, but that can be changed in the Bounds menu.</p>
+
+<h1>3.7- Disk/Washer Graph</h1>
+<p>This is a 3D graph that takes two formulas with the variable <b>x</b>. The first formula, <b>y1</b> acts as a lower bound for a 2D area, and the second formula, <b>y2</b> acts as an upper bound. The left and right bounds (domain) can be adjusted in the Bounds menu, and the default is from -1 to 1. The graph displays the area in question revolved about the x-axis to form a solid. A new option in the Bounds menu, the rotational resolution, determines how many segments are used to form the revolution, and the other options are like before.</p>
+
+<h1>3.8- Cylindrical Shell Graph</h1>
+<p>This is a 3D graph that is much like the disk/washer graph in that it takes two formulas with the variable <b>x</b> to form an area to revolve. However, this time, it revolves the graph around the y-axis.</p>
+
+<h1>3.9- Cross Section Graph</h1>
+<p>Like the previous two graphs mentioned, the cross section graph takes two formulas with the variable <b>x</b> to form an area. However, instead of forming a solid of revolution, each y-slice of the resulting area is changed into the chosen figure (chosen in the <b>Graph, Cross Section</b> menu). As a result, each cross section of the resulting 3D figure parallel to the yz-plane is the same shape as the chosen figure. This figure will be upside down anywhere <b>y1</b> is greater than <b>y2.</b></p>
+
+<p>A new option in the Bounds menu, circle resolution, determines the number of segments forming the circular surface in the cross section if the <b>Circle</b> or <b>Semicircle</b> option was chosen. Otherwise, this field is ignored.</p>
+
+</body>
+</html>

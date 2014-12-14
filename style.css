@@ -1,0 +1,49 @@
+.header_ul
+{
+    list-style-type:none;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+    background-color:#8080FF;
+}
+.header_li
+{
+    float:left;
+    margin:4px;
+}
+.button:link, .button:visited
+{
+    display:block;
+    width:120px;
+    color:black;
+    background-color:#C0C0FF;
+    text-align:center;
+    padding:4px;
+    text-decoration:none;
+    font-family:"Times New Roman", serif;
+    font-size:24px;
+}
+.button:hover, .button:active
+{
+    background-color:#FFFFFF;
+}
+body
+{
+    background-image:url("/images/graph/background.png");
+    background-attachment:fixed;
+}
+h1
+{
+    font-family:"Times New Roman", serif;
+    font-size:36px;
+}
+li
+{
+    font-family:"Times New Roman", serif;
+    font-size:20px;
+}
+p
+{
+    font-family:"Times New Roman", serif;
+    font-size:20px;
+}

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Differential Equations</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+<script type="text/javascript" src="gl-matrix-min.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="expression.js"></script>
+<script type="text/javascript" src="tendril.js"></script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+	precision mediump float;	
+
+	varying vec3 vLightWeighting;
+
+	void main(void)
+	{
+		gl_FragColor = vec4(vLightWeighting, 1);
+	}
+</script>
+
+<script id="shader-vs" type="x-shader/x-vertex">	
+	attribute vec3 aVertexPosition;
+    attribute float aVertexStrength;
+
+	uniform mat4 uMVMatrix;
+	uniform mat4 uPMatrix;
+
+	varying vec3 vLightWeighting;
+
+	void main(void)
+	{
+		gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        
+		vLightWeighting = vec3(1.0-aVertexStrength, 1.0-aVertexStrength, 1.0-aVertexStrength);
+	}
+</script>
+
+
+<script type="text/javascript">
+
+	var gl;
+
+	function initGL(canvas)
+	{
+		try
+		{
+			gl = canvas.getContext("experimental-webgl");
+			gl.viewportWidth = canvas.width;
+			gl.viewportHeight = canvas.height;
+		}
+		catch (e) {}
+		if (!gl)
+		{
+			alert("Could not initialise WebGL, sorry :-(");
+		}
+	}
+
+
+	function getShader(gl, id)
+	{
+		var shaderScript = document.getElementById(id);
+		if (!shaderScript)
+		{
+			return null;
+		}
+
+		var str = "";
+		var k = shaderScript.firstChild;
+		while (k)
+		{
+			if (k.nodeType == 3)
+			{
+				str += k.textContent;
+			}
+			k = k.nextSibling;
+		}
+
+		var shader;
+		if (shaderScript.type == "x-shader/x-fragment")
+		{
+			shader = gl.createShader(gl.FRAGMENT_SHADER);
+		}
+		else if (shaderScript.type == "x-shader/x-vertex")
+		{
+			shader = gl.createShader(gl.VERTEX_SHADER);
+		}
+		else
+		{
+			return null;
+		}
+
+		gl.shaderSource(shader, str);
+		gl.compileShader(shader);
+
+		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
+		{
+			alert(gl.getShaderInfoLog(shader));
+			return null;
+		}
+
+		return shader;
+	}
+
+
+	var shaderProgram;
+
+	function initShaders()
+	{
+		var fragmentShader = getShader(gl, "shader-fs");
+		var vertexShader = getShader(gl, "shader-vs");
+
+		shaderProgram = gl.createProgram();
+		gl.attachShader(shaderProgram, vertexShader);
+		gl.attachShader(shaderProgram, fragmentShader);
+		gl.linkProgram(shaderProgram);
+
+		if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS))
+		{
+			alert("Could not initialise shaders");
+		}
+
+		gl.useProgram(shaderProgram);
+
+		shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+        shaderProgram.vertexStrengthAttribute = gl.getAttribLocation(shaderProgram, "aVertexStrength");
+		gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+        gl.enableVertexAttribArray(shaderProgram.vertexStrengthAttribute);
+
+		shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+		shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+	}
+
+	var mvMatrix = mat4.create();
+	var mvMatrixStack = [];
+	var pMatrix = mat4.create();
+
+	function mvPushMatrix()
+	{
+		var copy = mat4.clone(mvMatrix);
+		mvMatrixStack.push(copy);
+	}
+
+	function mvPopMatrix()
+	{
+		if (mvMatrixStack.length == 0)
+		{
+			throw "Invalid popMatrix!";
+		}
+		mvMatrix = mvMatrixStack.pop();
+	}
+
+
+	function setMatrixUniforms()
+	{
+		gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+		gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+	}
+
+
+	var currentlyPressedKeys = {};
+
+	function handleKeyDown(event)
+	{
+		currentlyPressedKeys[event.keyCode] = true;
+	}
+
+
+	function handleKeyUp(event)
+	{
+		currentlyPressedKeys[event.keyCode] = false;
+	}
+
+
+	function handleKeys()
+	{
+		if (currentlyPressedKeys[37])
+		{
+			// Left cursor key
+		}
+	}
+
+
+	function drawScene()
+	{
+		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+
+		//mat4.perspective(pMatrix, 45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0);
+        mat4.ortho(pMatrix, xmin, xmax, ymin, ymax, -1.0, 1.0);
+
+		mat4.identity(mvMatrix);
+
+		mat4.translate(mvMatrix, mvMatrix, [0.0, 0.0, 0.0]);
+        
+        for (var i=0; i<tendrils.length; i++)
+        {
+            tendrils[i].draw(gl);
+        }
+	}
+    
+    function updateEquation()
+    {
+        TC.dx = parseExpression(document.getElementById("dx").value, ['x', 'y']);
+        TC.dy = parseExpression(document.getElementById("dy").value, ['x', 'y']);
+        TC.frequency = parseExpression(document.getElementById("dense").value, []).eval([]);
+        xmin = parseExpression(document.getElementById("xmin").value, []).eval([]);
+        xmax = parseExpression(document.getElementById("xmax").value, []).eval([]);
+        ymin = parseExpression(document.getElementById("ymin").value, []).eval([]);
+        ymax = parseExpression(document.getElementById("ymax").value, []).eval([]);
+        for (i=0; i<tendrils.length; i++)
+        {
+            tendrils[i].dead = true;
+            tendrils[i].destroyDraw(gl);
+        }
+        tendrils = []
+    }
+
+
+	var lastTime = 0;
+    
+    var globalTime = 0;
+    var tendrils = [];
+    
+    function step(dt)
+    {
+        globalTime += dt;
+        for (var i=0; i<100; i++)
+        {
+            if (Math.random() < dt*TC.frequency/100)
+                tendrils.push(new Tendril(Math.random()*(xmax-xmin)+xmin, Math.random()*(ymax-ymin)+ymin, globalTime));
+        }
+        
+        //Remove dead entities and step live ones
+        for (var i=0; i<tendrils.length; i++)
+        {
+            if (tendrils[i].dead)
+            {
+                tendrils[i].destroyDraw(gl);
+                tendrils.splice(i,1);
+                i--;
+            }
+            else
+            {
+                tendrils[i].step(dt);
+            }
+        }
+    }
+    
+	function animate()
+	{
+		var timeNow = new Date().getTime();
+		if (lastTime != 0)
+		{
+			var elapsed = timeNow - lastTime;
+            if (elapsed > 100) elapsed = 100;
+            step(elapsed/1000.0);
+		}
+		lastTime = timeNow;
+	}
+
+
+	function tick()
+	{
+		requestAnimFrame(tick);
+		handleKeys();
+		drawScene();
+		animate();
+	}
+
+
+	function webGLStart()
+	{
+		var canvas = document.getElementById("dfqcanvas");
+		initGL(canvas);
+		initShaders();
+        updateEquation();
+
+		gl.clearColor(1.0, 1.0, 1.0, 1.0);
+
+		document.onkeydown = handleKeyDown;
+		document.onkeyup = handleKeyUp;
+
+		tick();
+	}
+
+</script>
+
+<link rel="stylesheet" type="text/css" href="style.css"/>
+
+</head>
+
+
+<body onload="webGLStart();">
+    <div class="container" style="width:532px">
+	<canvas id="dfqcanvas" style="border:1px solid #000000;" width="500" height="500"></canvas>
+    <br/>
+    <form>
+        dx/dt = <input type="text" id="dx" value="-y" /><br />
+        dy/dt = <input type="text" id="dy" value="x" /><br />
+        density: <input type="text" id="dense" value="120" />
+        If you set this value above 300, I am not responsible if your browser crashes. :)<br /><br />
+        x-min: <input type="text" id="xmin" value="-2" /><br />
+        x-max: <input type="text" id="xmax" value="2" /><br />
+        y-min: <input type="text" id="ymin" value="-2" /><br />
+        y-max: <input type="text" id="ymax" value="2" /><br />
+        <button type="button" onclick="updateEquation()">Apply</button>
+    </form>
+    </div>
+</body>
+
+</html>
