@@ -3,14 +3,14 @@
     list-style-type:none;
     margin:0;
 	border-bottom:1px solid black;
-    padding: 4px 16px;
+    padding: 4px 16px 0 16px;
     overflow:hidden;
     background-color:#8080FF;
 }
 .header_li
 {
     float:left;
-    margin:0 8px 0 0;
+    margin:0 8px 4px 0;
 }
 .button:link, .button:visited
 {
