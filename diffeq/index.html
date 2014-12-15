@@ -23,7 +23,7 @@
 
 <script id="shader-vs" type="x-shader/x-vertex">	
 	attribute vec3 aVertexPosition;
-    attribute float aVertexStrength;
+	attribute float aVertexStrength;
 
 	uniform mat4 uMVMatrix;
 	uniform mat4 uPMatrix;
@@ -276,7 +276,7 @@
 		var canvas = document.getElementById("dfqcanvas");
 		initGL(canvas);
 		initShaders();
-        updateEquation();
+		updateEquation();
 
 		gl.clearColor(1.0, 1.0, 1.0, 1.0);
 
@@ -294,21 +294,21 @@
 
 
 <body onload="webGLStart();">
-    <div class="container" style="width:532px">
-	<canvas id="dfqcanvas" style="border:1px solid #000000;" width="500" height="500"></canvas>
-    <br/>
-    <form>
-        dx/dt = <input type="text" id="dx" value="-y" /><br />
-        dy/dt = <input type="text" id="dy" value="x" /><br />
-        density: <input type="text" id="dense" value="120" />
-        If you set this value above 300, I am not responsible if your browser crashes. :)<br /><br />
-        x-min: <input type="text" id="xmin" value="-2" /><br />
-        x-max: <input type="text" id="xmax" value="2" /><br />
-        y-min: <input type="text" id="ymin" value="-2" /><br />
-        y-max: <input type="text" id="ymax" value="2" /><br />
-        <button type="button" onclick="updateEquation()">Apply</button>
-    </form>
-    </div>
+	<div class="container" style="width:532px">
+		<canvas id="dfqcanvas" style="border:1px solid #000000;" width="500" height="500"></canvas>
+		<br/>
+		<form>
+			dx/dt = <input type="text" id="dx" value="-y" /><br />
+			dy/dt = <input type="text" id="dy" value="x" /><br />
+			density: <input type="text" id="dense" value="120" />
+			If you set this value above 300, I am not responsible if your browser crashes. :)<br /><br />
+			x-min: <input type="text" id="xmin" value="-2" /><br />
+			x-max: <input type="text" id="xmax" value="2" /><br />
+			y-min: <input type="text" id="ymin" value="-2" /><br />
+			y-max: <input type="text" id="ymax" value="2" /><br />
+			<button type="button" onclick="updateEquation()">Apply</button>
+		</form>
+	</div>
 </body>
 
 </html>
