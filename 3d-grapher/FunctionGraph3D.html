@@ -1,0 +1,174 @@
+
+<html>
+
+<head>
+<title>3D Function Graph</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet" type="text/css" href="style.css"/>
+
+<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="expression.js"></script>
+
+<script type="text/javascript" src="graph3d.js"></script>
+
+<script type="text/javascript">
+
+function updateGraph()
+{
+	fun_z = Array();
+	fun_dx = Array();
+	fun_dy = Array();
+	
+	for (var i=0; i<=xRes; i++)
+	{
+		fun_z[i] = Array();
+		fun_dx[i] = Array();
+		fun_dy[i] = Array();
+		
+		for (var j=0; j<=yRes; j++)
+		{
+			var x = xMin + (xMax-xMin)*i/xRes, y = yMin + (yMax-yMin)*j/yRes;
+			fun_z[i][j] = value(x,y);
+			fun_dx[i][j] = partialX(x,y);
+			fun_dy[i][j] = partialY(x,y);
+		}
+	}
+	
+	initBuffers(gl);
+}
+
+//Returns the value of z at the specified position.
+function value(x, y)
+{
+	return exp0.eval([x, y, u, v]);
+}
+
+//Returns the partial derivative with respect to x at the specified position.
+function partialX(x, y)
+{
+	return exp0.derivative([x, y, u, v], 0);
+}
+
+//Returns the partial derivative with respect to y at the specified position.
+function partialY(x, y)
+{
+	return exp0.derivative([x, y, u, v], 1);
+}
+
+function initBuffers()
+{       
+	var vertices = Array();
+	var normals = Array();
+	var order = Array();
+	var vc = 0, nc = 0; vic = 0; oc = 0;
+	
+	var vertexID = Array();
+	for (var i=0; i<=xRes; i++)
+	{
+		vertexID[i] = Array();
+		for (var j=0; j<=yRes; j++)
+		{
+			vertexID[i][j] = -1;
+		}
+	}
+	
+	for (var i=0; i<=xRes; i++)
+		for (var j=0; j<=yRes; j++)
+		{
+			var x = xMin + (xMax-xMin)*i/xRes, y = yMin + (yMax-yMin)*j/yRes;
+			
+			var nx, ny, nz, n;
+			nx = -fun_dx[i][j]; ny = -fun_dy[i][j]; nz = 1;
+			n = Math.sqrt(nx*nx + ny*ny + nz*nz);
+			
+			vertices[vc++] = x;
+			vertices[vc++] = y;
+			vertices[vc++] = fun_z[i][j];
+			
+			normals[nc++] = (nx/n);
+			normals[nc++] = (ny/n);
+			normals[nc++] = (nz/n);
+			
+			vertexID[i][j] = vic++;
+		}
+	
+	//Order
+	for (var i=0; i<xRes; i++)
+		for (var j=0; j<yRes; j++)
+		{
+			if (vertexID[i][j] < 0 || vertexID[i+1][j] < 0 || vertexID[i+1][j+1] < 0 || vertexID[i][j+1] < 0)
+				continue;
+			
+			order[oc++] = vertexID[i][j];
+			order[oc++] = vertexID[i+1][j];
+			order[oc++] = vertexID[i+1][j+1];
+			
+			order[oc++] = vertexID[i][j];
+			order[oc++] = vertexID[i+1][j+1];
+			order[oc++] = vertexID[i][j+1];
+		}
+	
+	setBuffers(vertices, normals, order);
+}
+
+function updateSettings()
+{
+	xRes = parseExpression(document.getElementById("xres").value, []).eval([]);
+	yRes = parseExpression(document.getElementById("yres").value, []).eval([]);
+	xMin = parseExpression(document.getElementById("xmin").value, []).eval([]);
+	xMax = parseExpression(document.getElementById("xmax").value, []).eval([]);
+	yMin = parseExpression(document.getElementById("ymin").value, []).eval([]);
+	yMax = parseExpression(document.getElementById("ymax").value, []).eval([]);
+	centerX = parseExpression(document.getElementById("xcenter").value, []).eval([]);
+	centerY = parseExpression(document.getElementById("ycenter").value, []).eval([]);
+	centerZ = parseExpression(document.getElementById("zcenter").value, []).eval([]);
+	u = 0; v = 0;
+	
+	//try
+	//{
+		exp0 = parseExpression(document.getElementById("eq0").value, ['x', 'y']);
+		updateGraph();
+		render();
+	//}
+	//catch (e)
+	//{
+   // }
+}
+
+</script>
+
+
+</head>
+
+
+<body onload="webGLStart();">
+	<canvas id="canvas" style="border: none;" width="500" height="500"></canvas>
+	
+	<div class="settings" id="settings">
+		<a class="hide-settings" href="javascript:void(0)" onclick="hideSettings()">Hide Settings</a>
+		
+		<form>
+			<label class="field" for="eq0">z = </label><input type="text" id="eq0" value="x^2-y^2" /><br/>
+			<br/>
+			<label class="field" for="xmin">x-min:</label><input type="text" id="xmin" value="-1" /><br/>
+			<label class="field" for="xmax">x-max:</label><input type="text" id="xmax" value="1" /><br/>
+			<label class="field" for="ymin">y-min:</label><input type="text" id="ymin" value="-1" /><br/>
+			<label class="field" for="ymax">y-max:</label><input type="text" id="ymax" value="1" /><br/>
+			<label class="field" for="xres">x-res:</label><input type="text" id="xres" value="50" /><br/>
+			<label class="field" for="yres">y-res:</label><input type="text" id="yres" value="50" /><br/>
+			<br/>
+			<label class="field" for="xcenter">x-center:</label><input type="text" id="xcenter" value="0" /><br/>
+			<label class="field" for="ycenter">y-center:</label><input type="text" id="ycenter" value="0" /><br/>
+			<label class="field" for="zcenter">z-center:</label><input type="text" id="zcenter" value="0" /><br/>
+			
+			<button type="button" onclick="updateSettings()">Apply</button>
+		</form>
+	</div>
+	
+	<div class="show-settings" id="show-settings">
+		<a class="show-settings" href="javascript:void(0)" onclick="showSettings()">Show Settings</a>
+	</div>
+</body>
+
+</html>

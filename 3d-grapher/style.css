@@ -1,0 +1,55 @@
+
+div.settings
+{
+	position:absolute;
+	top:4px;
+	left:4px;
+	padding:8px;
+	display:inline-block;
+	background-color:#F0F0F0;
+	border-style:outset;
+	border-color:#C0C0C0;
+	position:relative;
+	z-index:2;
+}
+
+div.show-settings
+{
+	position:absolute;
+	top:4px;
+	left:4px;
+	padding:8px;
+	display:none;
+	z-index:2;
+}
+
+a.hide-settings
+{
+}
+
+a.show-settings
+{
+	color:#FFFFFF;
+}
+
+form
+{
+	margin:4px 0 0 0;
+	padding:0;
+}
+
+canvas
+{
+	position:absolute;
+	z-index:1;
+	top:0;
+	left:0;
+}
+
+label.field
+{
+	text-align:left;
+	width:80px;
+	float:left;
+	font-weight:bold;
+}
