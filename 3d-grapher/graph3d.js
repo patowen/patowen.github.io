@@ -352,3 +352,4 @@ function showSettings()
 	document.getElementById("settings").style.display = "inline-block";
 	document.getElementById("show-settings").style.display = "none";
 }
+

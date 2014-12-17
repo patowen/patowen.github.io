@@ -561,3 +561,4 @@ function separateExpression(s, pos, operation, variableNames)
 		throw "parse error";
 	}
 }
+
