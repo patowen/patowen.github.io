@@ -112,28 +112,31 @@ function initBuffers()
 	setBuffers(vertices, normals, order);
 }
 
-function updateSettings()
+function initSettings()
 {
-	xRes = parseExpression(document.getElementById("xres").value, []).eval([]);
-	yRes = parseExpression(document.getElementById("yres").value, []).eval([]);
-	xMin = parseExpression(document.getElementById("xmin").value, []).eval([]);
-	xMax = parseExpression(document.getElementById("xmax").value, []).eval([]);
-	yMin = parseExpression(document.getElementById("ymin").value, []).eval([]);
-	yMax = parseExpression(document.getElementById("ymax").value, []).eval([]);
-	centerX = parseExpression(document.getElementById("xcenter").value, []).eval([]);
-	centerY = parseExpression(document.getElementById("ycenter").value, []).eval([]);
-	centerZ = parseExpression(document.getElementById("zcenter").value, []).eval([]);
+	xRes = 50; yRes = 50;
+	xMin = -1; xMax = 1;
+	yMin = -1; yMax = 1;
+	xCenter = 0; yCenter = 0; zCenter = 0;
 	u = 0; v = 0;
+	exp0 = new Constant(0);
+}
+
+function updateSettings(e)
+{
+	xRes = getValue("xres", xRes);
+	yRes = getValue("yres", yRes);
+	xMin = getValue("xmin", xMin);
+	xMax = getValue("xmax", xMax);
+	yMin = getValue("ymin", yMin);
+	yMax = getValue("ymax", yMax);
+	xCenter = getValue("xcenter", xCenter);
+	yCenter = getValue("ycenter", yCenter);
+	zCenter = getValue("zcenter", zCenter);
 	
-	//try
-	//{
-		exp0 = parseExpression(document.getElementById("eq0").value, ['x', 'y']);
-		updateGraph();
-		render();
-	//}
-	//catch (e)
-	//{
-   // }
+	exp0 = getExpression("eq0", ['x', 'y', 'u', 'v'], exp0);
+	updateGraph();
+	render();
 }
 
 </script>
@@ -148,7 +151,7 @@ function updateSettings()
 	<div class="settings" id="settings">
 		<a class="hide-settings" href="javascript:void(0)" onclick="hideSettings()">Hide Settings</a>
 		
-		<form>
+		<form id="form">
 			<label class="field" for="eq0">z = </label><input type="text" id="eq0" value="x^2-y^2" /><br/>
 			<br/>
 			<label class="field" for="xmin">x-min:</label><input type="text" id="xmin" value="-1" /><br/>
@@ -162,7 +165,7 @@ function updateSettings()
 			<label class="field" for="ycenter">y-center:</label><input type="text" id="ycenter" value="0" /><br/>
 			<label class="field" for="zcenter">z-center:</label><input type="text" id="zcenter" value="0" /><br/>
 			
-			<button type="button" onclick="updateSettings()">Apply</button>
+			<button type="button" value="Apply" id="apply">Apply</button>
 		</form>
 	</div>
 	

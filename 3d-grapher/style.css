@@ -1,4 +1,9 @@
 
+input[type="text"]
+{
+	width:150px
+}
+
 div.settings
 {
 	position:absolute;
@@ -23,11 +28,12 @@ div.show-settings
 	z-index:2;
 }
 
-a.hide-settings
+a.hide-settings:link, a.hide-settings:visited, a.hide-settings:hover
 {
+	color:#0000ee;
 }
 
-a.show-settings
+a.show-settings:link, a.show-settings:visited, a.show-settings:hover
 {
 	color:#FFFFFF;
 }

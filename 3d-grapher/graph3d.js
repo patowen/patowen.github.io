@@ -12,7 +12,7 @@ var vertexIndexBuffer;
 var xRot = Math.PI/2;
 var zRot = 0;
 var distance = 4;
-var centerX = 0, centerY = 0, centerZ = 0;
+var xCenter = 0, yCenter = 0, zCenter = 0;
 
 var mouseDown = false;
 var mouseX = 0, mouseY = 0;
@@ -38,32 +38,42 @@ var vertexShaderSrc =
 	
 	+"	uniform bool uUseLighting;"
 	
-	+"	varying vec3 vLightWeighting;"
+	+"	varying vec3 vLightWeighting1;"
+	+"	varying vec3 vLightWeighting2;"
 	
 	+"	void main(void)"
 	+"	{"
-	+"		gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);"
+	+"		vec4 position = uMVMatrix * vec4(aVertexPosition, 1.0);"
+	+"		gl_Position = uPMatrix * position;"
 	
 	+"		if (!uUseLighting)"
 	+"		{"
-	+"			vLightWeighting = uAmbientColor;"
+	+"			vLightWeighting1 = uAmbientColor;"
+	+"			vLightWeighting2 = uAmbientColor;"
 	+"		}"
 	+"		else"
 	+"		{"
 	+"			vec3 transformedNormal = uNMatrix * aVertexNormal;"
-	+"			float directionalLightWeighting = max(sign(transformedNormal.z)*dot(transformedNormal, uLightingDirection), 0.0);"
-	+"			vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;"
+	+"			vec3 vertexDirection = -normalize(position.xyz);"
+	+"			float directionalLightWeighting1 = max(dot(transformedNormal, vertexDirection), 0.0);"
+	+"			float directionalLightWeighting2 = max(-dot(transformedNormal, vertexDirection), 0.0);"
+	+"			vLightWeighting1 = uAmbientColor + uDirectionalColor * directionalLightWeighting1;"
+	+"			vLightWeighting2 = uAmbientColor + uDirectionalColor * directionalLightWeighting2;"
 	+"		}"
 	+"	}";
 
 var fragmentShaderSrc =
 	 "	precision mediump float;"
 	
-	+"	varying vec3 vLightWeighting;"
+	+"	varying vec3 vLightWeighting1;"
+	+"	varying vec3 vLightWeighting2;"
 	
 	+"	void main(void)"
 	+"	{"
-	+"		gl_FragColor = vec4(vLightWeighting, 1);"
+	+"		if (gl_FrontFacing)"
+	+"			gl_FragColor = vec4(vLightWeighting1, 1);"
+	+"		else"
+	+"			gl_FragColor = vec4(vLightWeighting2, 1);"
 	+"	}";
 
 function initGL()
@@ -189,7 +199,7 @@ function drawScene()
 	mat4.rotate(mvMatrix, xRot, [-1, 0, 0]);
 	mat4.rotate(mvMatrix, zRot, [0, 0, -1]);
 	
-	mat4.translate(mvMatrix, [-centerX, -centerY, -centerZ]);
+	mat4.translate(mvMatrix, [-xCenter, -yCenter, -zCenter]);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -200,9 +210,9 @@ function drawScene()
 	gl.uniform1i(shaderProgram.samplerUniform, 0);
 	gl.uniform1i(shaderProgram.useLightingUniform, true);
 	
-	gl.uniform3fv(shaderProgram.ambientColorUniform, [0.2, 0.2, 0.2]);
+	gl.uniform3fv(shaderProgram.ambientColorUniform, [0.05, 0.05, 0.05]);
 	gl.uniform3fv(shaderProgram.lightingDirectionUniform, [0.0, 0.0, 1.0]);
-	gl.uniform3fv(shaderProgram.directionalColorUniform, [0.8, 0.8, 0.8]);
+	gl.uniform3fv(shaderProgram.directionalColorUniform, [0.95, 0.95, 0.95]);
 	
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
 	setMatrixUniforms();
@@ -242,14 +252,20 @@ function webGLStart()
 	canvas = document.getElementById("canvas");
 	initGL();
 	initShaders();
+	initSettings();
 	updateSettings();
 	
 	canvas.onmousedown = handleMouseDown;
-	canvas.onmousewheel = handleMouseWheel;
+	if (canvas.onmousewheel === undefined)
+		canvas.onwheel = handleWheel;
+	else
+		canvas.onmousewheel = handleMouseWheel;
 	canvas.oncontextmenu = suppressContextMenu;
 	document.onmouseup = handleMouseUp;
 	document.onmousemove = handleMouseMove;
-	window.addEventListener('resize', handleWindowResize, false);
+	document.getElementById("form").onkeydown = handleEnterKey;
+	document.getElementById("apply").onclick = updateSettings;
+	window.addEventListener("resize", handleWindowResize, false);
 	
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	gl.enable(gl.DEPTH_TEST);
@@ -261,6 +277,14 @@ function suppressContextMenu(e)
 {
 	e.preventDefault();
 	return false;
+}
+
+function handleEnterKey(e)
+{
+	if (e.keyCode == 13)
+	{
+		updateSettings();
+	}
 }
 
 function handleWindowResize(e)
@@ -279,21 +303,14 @@ function handleMouseDown(e)
 	e.preventDefault();
 	mouseDown = true;
 	
-	if (mouseView)
-	{
-		mouseX = e.clientX;
-		mouseY = e.clientY;
-		mouseButton = e.button;
-		
-		if (e.shiftKey)
-			mouseButton = 2;
-		if (e.ctrlKey)
-			mouseButton = 1;
-	}
-	else
-	{
-		//TODO setMouseCoordinates
-	}
+	mouseX = e.clientX;
+	mouseY = e.clientY;
+	mouseButton = e.button;
+	
+	if (e.shiftKey)
+		mouseButton = 2;
+	if (e.ctrlKey)
+		mouseButton = 1;
 	
 	return false;
 }
@@ -322,6 +339,13 @@ function handleMouseMove(e)
 			
 			render();
 		}
+		else if (mouseButton == 1)
+		{
+			u = 2*e.clientX/canvas.width - 1;
+			v = 1 - 2*e.clientY/canvas.height;
+			updateGraph();
+			render();
+		}
 		else if (mouseButton == 2)
 		{
 			distance *= Math.pow(mouseSensitivityDistance, e.clientY-mouseY);
@@ -341,6 +365,15 @@ function handleMouseWheel(e)
 	return false;
 }
 
+function handleWheel(e)
+{
+	blah = e;
+	e.preventDefault();
+	distance *= Math.pow(scrollSensitivityDistance, e.deltaY*40);
+	render();
+	return false;
+}
+
 function hideSettings()
 {
 	document.getElementById("settings").style.display = "none";
@@ -353,3 +386,50 @@ function showSettings()
 	document.getElementById("show-settings").style.display = "none";
 }
 
+function getExpression(id, vars, oldExpr)
+{
+	var element = document.getElementById(id);
+	try
+	{
+		var expr = parseExpression(element.value, vars);
+		element.style.backgroundColor = "#FFFFFF";
+		return expr;
+	}
+	catch (e)
+	{
+		if (e == "parse error")
+		{
+			element.style.backgroundColor = "#FFC0C0";
+			return oldExpr;
+		}
+		else
+		{
+			throw e;
+		}
+	}
+}
+
+function getValue(id, oldValue)
+{
+	var element = document.getElementById(id);
+	try
+	{
+		var expr = parseExpression(element.value, []);
+		element.style.backgroundColor = "#FFFFFF";
+		var val = expr.eval([]);
+		element.value = val;
+		return val;
+	}
+	catch (e)
+	{
+		if (e == "parse error")
+		{
+			element.style.backgroundColor = "#FFC0C0";
+			return oldValue;
+		}
+		else
+		{
+			throw e;
+		}
+	}
+}
