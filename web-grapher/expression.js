@@ -408,6 +408,8 @@ function parseExpression(s, variableNames)
 	}
 	
 	//Check to see if the expression is a constant
+	if (isNaN(s)) throw "parse error";
+	
 	var num = parseFloat(s);
 	if (!isFinite(num)) throw "parse error";
 	

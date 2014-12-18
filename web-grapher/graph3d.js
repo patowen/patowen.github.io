@@ -519,7 +519,26 @@ function getValue(id, oldValue)
 	}
 }
 
-function setTextFieldsFromQuery()
+function getQueryFromOptions()
+{
+	var query = "?";
+	var options = document.getElementsByClassName("option");
+	
+	for (var i=0; i<options.length; i++)
+	{
+		if (i != 0) query += "&";
+		query += encodeURIComponent(options[i].id) + "=" + encodeURIComponent(options[i].value);
+	}
+	
+	query += "&xrot=" + xRot;
+	query += "&zrot=" + zRot;
+	query += "&distance=" + distance;
+	query += "&showaxes=" + showAxes;
+	
+	return query;
+}
+
+function setOptionsFromQuery()
 {
 	var query = window.location.search;
 	if (query !== "")
@@ -530,12 +549,12 @@ function setTextFieldsFromQuery()
 			var divider = query.indexOf('&');
 			if (divider == -1)
 			{				
-				setSingleTextFieldFromQuery(query);
+				setSingleOptionFromQuery(query);
 				query = "";
 			}
 			else
 			{
-				setSingleTextFieldFromQuery(query.substring(0, divider));
+				setSingleOptionFromQuery(query.substring(0, divider));
 				query = query.substring(divider+1);
 			}
 		}
@@ -543,15 +562,45 @@ function setTextFieldsFromQuery()
 }
 
 // Sets a single text field based on the given encoded query.
-function setSingleTextFieldFromQuery(query)
+function setSingleOptionFromQuery(query)
 {
 	var divider = query.indexOf('=')
 	var id = decodeURIComponent(query.substring(0, divider));
 	var value = decodeURIComponent(query.substring(divider+1));
 	
-	var element = document.getElementById(id);
-	if (element !== null && element.className === "settings")
+	if (!setCommonOption(id, value))
 	{
-		element.value = value;
+		var element = document.getElementById(id);
+		if (element !== null && element.className === "option")
+		{
+			element.value = value;
+		}
 	}
+}
+
+function setCommonOption(id, value)
+{
+	if (id == "xrot") {xRot = parseFloatOption(value, xRot); return true;}
+	if (id == "zrot") {zRot = parseFloatOption(value, zRot); return true;}
+	if (id == "distance") {distance = parseFloatOption(value, distance); return true;}
+	if (id == "showaxes") {showAxes = parseBoolOption(value, showAxes); document.getElementById("axes").checked = showAxes; return true;}
+	return false;
+}
+
+// Parses a float and returns oldValue if it cannot parse.
+function parseFloatOption(str, oldValue)
+{
+	if (isNaN(str)) return oldValue;
+	
+	var newValue = parseFloat(str);
+	if (isFinite(newValue)) return newValue;
+	return oldValue;
+}
+
+// Parses a float and returns oldValue if it cannot parse.
+function parseBoolOption(str, oldValue)
+{
+	if (str === "true") return true;
+	if (str === "false") return false;
+	return oldValue;
 }

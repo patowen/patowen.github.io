@@ -122,8 +122,7 @@ function initSettings()
 	u = 0; v = 0;
 	exp0 = null;
 	
-	setTextFieldsFromQuery();
-	
+	setOptionsFromQuery();
 	updateSettings(null);
 	
 	resetTextField("eq0");
@@ -165,18 +164,18 @@ function updateSettings(e)
 		<a class="hide-settings" href="javascript:void(0)" onclick="hideSettings()">Hide Settings</a>
 		
 		<form id="form">
-			<label class="field" for="eq0">z = </label><input class="settings" type="text" id="eq0" value="" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="eq0">z = </label><input class="option" type="text" id="eq0" value="" autocomplete="off" spellcheck="false" /><br/>
 			<br/>
-			<label class="field" for="xmin">x-min:</label><input class="settings" type="text" id="xmin" value="-1" autocomplete="off" spellcheck="false" /><br/>
-			<label class="field" for="xmax">x-max:</label><input class="settings" type="text" id="xmax" value="1" autocomplete="off" spellcheck="false" /><br/>
-			<label class="field" for="ymin">y-min:</label><input class="settings" type="text" id="ymin" value="-1" autocomplete="off" spellcheck="false" /><br/>
-			<label class="field" for="ymax">y-max:</label><input class="settings" type="text" id="ymax" value="1" autocomplete="off" spellcheck="false" /><br/>
-			<label class="field" for="xres">x-res:</label><input class="settings" type="text" id="xres" value="50" autocomplete="off" spellcheck="false" /><br/>
-			<label class="field" for="yres">y-res:</label><input class="settings" type="text" id="yres" value="50" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="xmin">x-min:</label><input class="option" type="text" id="xmin" value="-1" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="xmax">x-max:</label><input class="option" type="text" id="xmax" value="1" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="ymin">y-min:</label><input class="option" type="text" id="ymin" value="-1" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="ymax">y-max:</label><input class="option" type="text" id="ymax" value="1" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="xres">x-res:</label><input class="option" type="text" id="xres" value="50" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="yres">y-res:</label><input class="option" type="text" id="yres" value="50" autocomplete="off" spellcheck="false" /><br/>
 			<br/>
-			<label class="field" for="xcenter">x-center:</label><input class="settings" type="text" id="xcenter" value="0" autocomplete="off" spellcheck="false" /><br/>
-			<label class="field" for="ycenter">y-center:</label><input class="settings" type="text" id="ycenter" value="0" autocomplete="off" spellcheck="false" /><br/>
-			<label class="field" for="zcenter">z-center:</label><input class="settings" type="text" id="zcenter" value="0" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="xcenter">x-center:</label><input class="option" type="text" id="xcenter" value="0" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="ycenter">y-center:</label><input class="option" type="text" id="ycenter" value="0" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="zcenter">z-center:</label><input class="option" type="text" id="zcenter" value="0" autocomplete="off" spellcheck="false" /><br/>
 			
 			<button type="button" value="Apply" id="apply">Apply</button>
 		</form>
