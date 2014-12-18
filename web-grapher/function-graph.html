@@ -15,6 +15,7 @@
 
 <script type="text/javascript">
 
+// Finds all the function values and update the graph to be rendered.
 function updateGraphSpecific()
 {
 	fun_z = Array();
@@ -57,6 +58,7 @@ function partialY(x, y)
 	return exp0.derivative([x, y, u, v], 1);
 }
 
+// Sets the vertex, normal, and order (index) arrays based on the function values.
 function initBuffers()
 {       
 	var vertices = Array();
@@ -94,7 +96,7 @@ function initBuffers()
 			vertexID[i][j] = vic++;
 		}
 	
-	//Order
+	// Order
 	for (var i=0; i<xRes; i++)
 		for (var j=0; j<yRes; j++)
 		{
@@ -113,13 +115,13 @@ function initBuffers()
 	setBuffers(vertices, normals, order);
 }
 
+// Initializes all the settings to default values in case the text boxes
+// have invalid contents. Also updates the text boxes from the URL query.
 function initSettings()
 {
 	xRes = 50; yRes = 50;
 	xMin = -1; xMax = 1;
 	yMin = -1; yMax = 1;
-	xCenter = 0; yCenter = 0; zCenter = 0;
-	u = 0; v = 0;
 	exp0 = null;
 	
 	setOptionsFromQuery();
@@ -128,6 +130,7 @@ function initSettings()
 	resetTextField("eq0");
 }
 
+// Updates all the settings from the text fields, as if the user hit Apply.
 function updateSettings(e)
 {
 	exp0 = getExpression("eq0", ['x', 'y', 'u', 'v'], exp0);
@@ -177,6 +180,7 @@ function updateSettings(e)
 			<label class="field" for="ycenter">y-center:</label><input class="option" type="text" id="ycenter" value="0" autocomplete="off" spellcheck="false" /><br/>
 			<label class="field" for="zcenter">z-center:</label><input class="option" type="text" id="zcenter" value="0" autocomplete="off" spellcheck="false" /><br/>
 			
+			<a href="" id="permalink" style="float:right">Permalink</a>
 			<button type="button" value="Apply" id="apply">Apply</button>
 		</form>
 	</div>

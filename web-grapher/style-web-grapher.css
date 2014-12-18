@@ -48,7 +48,12 @@ a.hide-settings:active
 
 a.show-settings:link, a.show-settings:visited, a.show-settings:hover
 {
-	color:#FFFFFF;
+	color:#E0E0FF;
+}
+
+a.show-settings:active
+{
+	color:#FFE0E0;
 }
 
 form
