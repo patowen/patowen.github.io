@@ -9,19 +9,21 @@ var vertexPositionBuffer;
 var vertexNormalBuffer;
 var vertexIndexBuffer;
 
-var xRot = Math.PI/2;
-var zRot = 0;
+var xRot = Math.PI/3;
+var zRot = 3*Math.PI/4;
 var distance = 4;
 var xCenter = 0, yCenter = 0, zCenter = 0;
 
 var mouseDown = false;
 var mouseX = 0, mouseY = 0;
 var mouseButton = 0;
-var mouseView = true;
 
 var mouseSensitivityAngle = 0.01;
 var mouseSensitivityDistance = 1.003;
 var scrollSensitivityDistance = 1.0015;
+
+var showGraph = false;
+var showAxes = true;
 
 var vertexShaderSrc = 
 	 "	attribute vec3 aVertexPosition;"
@@ -185,12 +187,20 @@ function setMatrixUniforms()
 }
 
 
-function drawScene()
+function updateGraph()
+{
+	if (showGraph)
+	{
+		updateGraphSpecific();
+	}
+}
+
+function render()
 {
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
+	mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, distance/20, distance*50, pMatrix);
 
 	mat4.identity(mvMatrix);
 
@@ -200,7 +210,71 @@ function drawScene()
 	mat4.rotate(mvMatrix, zRot, [0, 0, -1]);
 	
 	mat4.translate(mvMatrix, [-xCenter, -yCenter, -zCenter]);
+	
+	if (showGraph)
+	{
+		renderGraph();
+	}
+	
+	if (showAxes)
+	{
+		renderAxes();
+	}
+}
 
+function renderAxes()
+{
+	var axis_length = Math.abs(xCenter);
+	if (Math.abs(yCenter) > axis_length) axis_length = Math.abs(yCenter);
+	if (Math.abs(zCenter) > axis_length) axis_length = Math.abs(zCenter);
+	axis_length += distance*50;
+	
+	var vertices =
+		[0,           0,           0,
+		 axis_length, 0,           0,
+		 0,           axis_length, 0,
+		 0,           0,           axis_length];
+	
+	var normals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+	
+	var order = [0, 1, 0, 2, 0, 3];
+	
+	var axesVertexPositionBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, axesVertexPositionBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+	axesVertexPositionBuffer.itemSize = 3;
+	axesVertexPositionBuffer.numItems = vertices.length;
+	
+	var axesVertexNormalBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, axesVertexNormalBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+	axesVertexNormalBuffer.itemSize = 3;
+	axesVertexNormalBuffer.numItems = normals.length;
+
+	var axesVertexIndexBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, axesVertexIndexBuffer);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(order), gl.STATIC_DRAW);
+	
+	//###########################################################
+	gl.bindBuffer(gl.ARRAY_BUFFER, axesVertexPositionBuffer);
+	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, axesVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, axesVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	
+	gl.uniform1i(shaderProgram.samplerUniform, 0);
+	gl.uniform1i(shaderProgram.useLightingUniform, false);
+	
+	//gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, axesVertexIndexBuffer);
+	setMatrixUniforms();
+	gl.uniform3fv(shaderProgram.ambientColorUniform, [1, 0, 0]);
+	gl.drawElements(gl.LINES, 2, gl.UNSIGNED_SHORT, 0);
+	gl.uniform3fv(shaderProgram.ambientColorUniform, [0, 1, 0]);
+	gl.drawElements(gl.LINES, 2, gl.UNSIGNED_SHORT, 4);
+	gl.uniform3fv(shaderProgram.ambientColorUniform, [0, 0, 1]);
+	gl.drawElements(gl.LINES, 2, gl.UNSIGNED_SHORT, 8);
+}
+
+function renderGraph()
+{
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -241,19 +315,12 @@ function setBuffers(vertices, normals, order)
 }
 
 
-function render()
-{
-	drawScene();
-}
-
-
 function webGLStart()
 {
 	canvas = document.getElementById("canvas");
 	initGL();
 	initShaders();
 	initSettings();
-	updateSettings();
 	
 	canvas.onmousedown = handleMouseDown;
 	if (canvas.onmousewheel === undefined)
@@ -265,6 +332,7 @@ function webGLStart()
 	document.onmousemove = handleMouseMove;
 	document.getElementById("form").onkeydown = handleEnterKey;
 	document.getElementById("apply").onclick = updateSettings;
+	document.getElementById("axes").onchange = handleAxesUpdate;
 	window.addEventListener("resize", handleWindowResize, false);
 	
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -277,6 +345,19 @@ function suppressContextMenu(e)
 {
 	e.preventDefault();
 	return false;
+}
+
+function handleAxesUpdate(e)
+{
+	if (document.getElementById("axes").checked)
+	{
+		showAxes = true;
+	}
+	else
+	{
+		showAxes = false;
+	}
+	render();
 }
 
 function handleEnterKey(e)
@@ -324,11 +405,7 @@ function handleMouseMove(e)
 {
 	if (mouseDown)
 	{
-		if (!mouseView)
-		{
-			//TODO setMouseCoordinates
-		}
-		else if (mouseButton == 0)
+		if (mouseButton == 0)
 		{
 			zRot -= mouseSensitivityAngle*(e.clientX - mouseX);
 			xRot -= mouseSensitivityAngle*(e.clientY - mouseY);
@@ -367,7 +444,6 @@ function handleMouseWheel(e)
 
 function handleWheel(e)
 {
-	blah = e;
 	e.preventDefault();
 	distance *= Math.pow(scrollSensitivityDistance, e.deltaY*40);
 	render();
@@ -409,6 +485,15 @@ function getExpression(id, vars, oldExpr)
 	}
 }
 
+function resetTextField(id)
+{
+	var element = document.getElementById(id);
+	if (element.value === "")
+	{
+		element.style.backgroundColor = "#FFFFFF";
+	}
+}
+
 function getValue(id, oldValue)
 {
 	var element = document.getElementById(id);
@@ -431,5 +516,42 @@ function getValue(id, oldValue)
 		{
 			throw e;
 		}
+	}
+}
+
+function setTextFieldsFromQuery()
+{
+	var query = window.location.search;
+	if (query !== "")
+	{
+		query = query.substring(1);
+		while (query !== "")
+		{
+			var divider = query.indexOf('&');
+			if (divider == -1)
+			{				
+				setSingleTextFieldFromQuery(query);
+				query = "";
+			}
+			else
+			{
+				setSingleTextFieldFromQuery(query.substring(0, divider));
+				query = query.substring(divider+1);
+			}
+		}
+	}
+}
+
+// Sets a single text field based on the given encoded query.
+function setSingleTextFieldFromQuery(query)
+{
+	var divider = query.indexOf('=')
+	var id = decodeURIComponent(query.substring(0, divider));
+	var value = decodeURIComponent(query.substring(divider+1));
+	
+	var element = document.getElementById(id);
+	if (element !== null && element.className === "settings")
+	{
+		element.value = value;
 	}
 }

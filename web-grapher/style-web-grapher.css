@@ -7,14 +7,22 @@ input[type="text"]
 div.settings
 {
 	position:absolute;
-	top:4px;
-	left:4px;
+	margin:4px;
 	padding:8px;
 	display:inline-block;
 	background-color:#F0F0F0;
 	border-style:outset;
 	border-color:#C0C0C0;
 	position:relative;
+	z-index:2;
+}
+
+div.axes
+{
+	position:absolute;
+	margin:4px;
+	position:relative;
+	float:right;
 	z-index:2;
 }
 
@@ -30,7 +38,12 @@ div.show-settings
 
 a.hide-settings:link, a.hide-settings:visited, a.hide-settings:hover
 {
-	color:#0000ee;
+	color:#0000EE;
+}
+
+a.hide-settings:active
+{
+	color:#FF0000;
 }
 
 a.show-settings:link, a.show-settings:visited, a.show-settings:hover
@@ -58,4 +71,17 @@ label.field
 	width:80px;
 	float:left;
 	font-weight:bold;
+}
+
+label.axes
+{
+	text-align:left;
+	width:80px;
+	float:left;
+	color:#FFFFFF;
+}
+
+body
+{
+	background-color:#000000;
 }
