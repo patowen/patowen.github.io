@@ -115,7 +115,8 @@ function getVertexShader(gl)
 	
 	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
 	{
-		alert(gl.getShaderInfoLog(shader));
+		alert("Unexpected error: Failed to compile vertex shader.");
+		//alert(gl.getShaderInfoLog(shader));
 		return null;
 	}
 	
@@ -131,7 +132,8 @@ function getFragmentShader(gl)
 	
 	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
 	{
-		alert(gl.getShaderInfoLog(shader));
+		alert("Unexpected error: Failed to compile vertex shader.");
+		//alert(gl.getShaderInfoLog(shader));
 		return null;
 	}
 	
@@ -319,6 +321,12 @@ function setBuffers(vertices, normals, order)
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(order), gl.STATIC_DRAW);
 	vertexIndexBuffer.itemSize = 1;
 	vertexIndexBuffer.numItems = order.length;
+	
+	if (vertices.length/3 > 65536)
+	{
+		alert("Resolution set too high. There are " + (vertices.length/3) + " vertices, and the maximum is 65536 vertices. Expect visual glitches. "
+		+ "To fix, try decreasing the settings with the word \"res\" in them.");
+	}
 }
 
 // Initializes WebGL and sets everything up.
