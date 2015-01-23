@@ -286,19 +286,35 @@ function renderGraph()
 {
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
+	
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexNormalBuffer);
 	gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, vertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	
-	gl.uniform1i(shaderProgram.useLightingUniform, true);
-	
-	gl.uniform3fv(shaderProgram.ambientColorUniform, [0.05, 0.05, 0.05]);
-	gl.uniform3fv(shaderProgram.lightingDirectionUniform, [0.0, 0.0, 1.0]);
-	gl.uniform3fv(shaderProgram.directionalColorUniform, [0.95, 0.95, 0.95]);
+	if (renderLines)
+	{
+		gl.uniform1i(shaderProgram.useLightingUniform, false);
+		
+		gl.uniform3fv(shaderProgram.ambientColorUniform, [1.0, 1.0, 1.0]);
+	}
+	else
+	{
+		gl.uniform1i(shaderProgram.useLightingUniform, true);
+		
+		gl.uniform3fv(shaderProgram.ambientColorUniform, [0.05, 0.05, 0.05]);
+		gl.uniform3fv(shaderProgram.lightingDirectionUniform, [0.0, 0.0, 1.0]);
+		gl.uniform3fv(shaderProgram.directionalColorUniform, [0.95, 0.95, 0.95]);
+	}
 	
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
 	setMatrixUniforms();
-	gl.drawElements(gl.TRIANGLES, vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+	if (renderLines)
+	{
+		gl.drawElements(gl.LINES, vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+	}
+	else
+	{
+		gl.drawElements(gl.TRIANGLES, vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+	}
 }
 
 // Sets all the buffers used in rendering the graph based on the given arrays.
@@ -309,13 +325,13 @@ function setBuffers(vertices, normals, order)
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 	vertexPositionBuffer.itemSize = 3;
 	vertexPositionBuffer.numItems = vertices.length;
-
+	
 	vertexNormalBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexNormalBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
 	vertexNormalBuffer.itemSize = 3;
 	vertexNormalBuffer.numItems = normals.length;
-
+	
 	vertexIndexBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(order), gl.STATIC_DRAW);
@@ -335,6 +351,7 @@ function webGLStart()
 	canvas = document.getElementById("canvas");
 	initGL();
 	initShaders();
+	renderLines = false;
 	initSettings();
 	
 	canvas.onmousedown = handleMouseDown;
