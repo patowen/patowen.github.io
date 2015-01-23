@@ -102,7 +102,7 @@ function initGL()
 	catch (e) {}
 	if (!gl)
 	{
-		alert("Could not initialise WebGL. Your browser may not support it.");
+		alert("Could not initialize WebGL. Your browser may not support it.");
 	}
 }
 
@@ -153,7 +153,7 @@ function initShaders()
 
 	if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS))
 	{
-		alert("Could not initialise shaders");
+		alert("Could not initialize shaders");
 	}
 
 	gl.useProgram(shaderProgram);
@@ -477,7 +477,7 @@ function handleMouseWheel(e)
 	return false;
 }
 
-// Handles zooming while scolling (for Firefox)
+// Handles zooming while scrolling (for Firefox)
 function handleWheel(e)
 {
 	e.preventDefault();
@@ -526,7 +526,7 @@ function getExpression(id, vars, oldExpr)
 	}
 }
 
-// Turns an empty textfiled white. This makes sure that no red
+// Turns an empty textfield white. This makes sure that no red
 // textfields appear on a just-loaded page.
 function resetTextField(id)
 {
