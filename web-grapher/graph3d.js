@@ -3,7 +3,7 @@
 // WebGL tutorials which helped me get started.
 
 // Specifically: WebGL Lesson 7 – basic directional and ambient lighting | Learning WebGL
-// http://learningwebgl.com/blog/?p=684)
+// http://learningwebgl.com/blog/?p=684
 
 
 
@@ -90,7 +90,7 @@ var fragmentShaderSrc =
 	+"			gl_FragColor = vec4(vLightWeighting2, 1);"
 	+"	}";
 
-// Intialize WebGL
+// Initialize WebGL
 function initGL()
 {
 	try
