@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<title>Parametric Surface</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="style-web-grapher.css"/>
+
+<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="expression.js"></script>
+
+<script type="text/javascript" src="graph3d.js"></script>
+
+<script type="text/javascript">
+
+// Finds all the function values and update the graph to be rendered.
+function updateGraphSpecific()
+{
+	fun_x = Array();
+	fun_y = Array();
+	fun_z = Array();
+	fun_nx = Array();
+	fun_ny = Array();
+	fun_nz = Array();
+	
+	for (var i=0; i<=sRes; i++)
+	{
+		fun_x[i] = Array();
+		fun_y[i] = Array();
+		fun_z[i] = Array();
+		fun_nx[i] = Array();
+		fun_ny[i] = Array();
+		fun_nz[i] = Array();
+		
+		for (var j=0; j<=tRes; j++)
+		{
+			var s = sMin + (sMax-sMin)*i/sRes, t = tMin + (tMax-tMin)*j/tRes;
+			fun_x[i][j] = value(exp0,s,t);
+			fun_y[i][j] = value(exp1,s,t);
+			fun_z[i][j] = value(exp2,s,t);
+			
+			var dx1 = partialS(exp0,s,t);
+			var dy1 = partialS(exp1,s,t);
+			var dz1 = partialS(exp2,s,t);
+			
+			var dx2 = partialT(exp0,s,t);
+			var dy2 = partialT(exp1,s,t);
+			var dz2 = partialT(exp2,s,t);
+			
+			fun_nx[i][j] = dy1*dz2 - dz1*dy2;
+			fun_ny[i][j] = dz1*dx2 - dx1*dz2;
+			fun_nz[i][j] = dx1*dy2 - dy1*dx2;
+		}
+	}
+	
+	initBuffers(gl);
+}
+
+//Returns the value of z at the specified position.
+function value(exp, s, t)
+{
+	return exp.eval([s, t, u, v]);
+}
+
+//Returns the partial derivative with respect to x at the specified position.
+function partialS(exp, s, t)
+{
+	return exp.derivative([s, t, u, v], 0);
+}
+
+//Returns the partial derivative with respect to y at the specified position.
+function partialT(exp, s, t)
+{
+	return exp.derivative([s, t, u, v], 1);
+}
+
+// Sets the vertex, normal, and order (index) arrays based on the function values.
+function initBuffers()
+{       
+	var vertices = Array();
+	var normals = Array();
+	var order = Array();
+	var vc = 0, nc = 0; vic = 0; oc = 0;
+	
+	var vertexID = Array();
+	for (var i=0; i<=sRes; i++)
+	{
+		vertexID[i] = Array();
+		for (var j=0; j<=tRes; j++)
+		{
+			vertexID[i][j] = -1;
+		}
+	}
+	
+	for (var i=0; i<=sRes; i++)
+		for (var j=0; j<=tRes; j++)
+		{			
+			var n;
+			n = Math.sqrt(fun_nx[i][j]*fun_nx[i][j] + fun_ny[i][j]*fun_ny[i][j] + fun_nz[i][j]*fun_nz[i][j]);
+			
+			vertices[vc++] = fun_x[i][j];
+			vertices[vc++] = fun_y[i][j];
+			vertices[vc++] = fun_z[i][j];
+			
+			normals[nc++] = (fun_nx[i][j]/n);
+			normals[nc++] = (fun_ny[i][j]/n);
+			normals[nc++] = (fun_nz[i][j]/n);
+			
+			vertexID[i][j] = vic++;
+		}
+	
+	// Order
+	for (var i=0; i<sRes; i++)
+		for (var j=0; j<tRes; j++)
+		{
+			if (vertexID[i][j] < 0 || vertexID[i+1][j] < 0 || vertexID[i+1][j+1] < 0 || vertexID[i][j+1] < 0)
+				continue;
+			
+			order[oc++] = vertexID[i][j];
+			order[oc++] = vertexID[i+1][j];
+			order[oc++] = vertexID[i+1][j+1];
+			
+			order[oc++] = vertexID[i][j];
+			order[oc++] = vertexID[i+1][j+1];
+			order[oc++] = vertexID[i][j+1];
+		}
+	
+	setBuffers(vertices, normals, order);
+}
+
+// Initializes all the settings to default values in case the text boxes
+// have invalid contents. Also updates the text boxes from the URL query.
+function initSettings()
+{
+	sRes = 50; tRes = 50;
+	sMin = -1; sMax = 1;
+	tMin = -1; tMax = 1;
+	exp0 = null;
+	exp1 = null;
+	exp2 = null;
+	
+	setOptionsFromQuery();
+	updateSettings(null);
+	
+	resetTextField("eq0");
+	resetTextField("eq1");
+	resetTextField("eq2");
+}
+
+// Updates all the settings from the text fields, as if the user hit Apply.
+function updateSettings(e)
+{
+	exp0 = getExpression("eq0", ['s', 't', 'u', 'v'], exp0);
+	exp1 = getExpression("eq1", ['s', 't', 'u', 'v'], exp1);
+	exp2 = getExpression("eq2", ['s', 't', 'u', 'v'], exp2);
+	
+	sMin = getValue("smin", sMin);
+	sMax = getValue("smax", sMax);
+	tMin = getValue("tmin", tMin);
+	tMax = getValue("tmax", tMax);
+	sRes = getValue("sres", sRes);
+	tRes = getValue("tres", tRes);
+	xCenter = getValue("xcenter", xCenter);
+	yCenter = getValue("ycenter", yCenter);
+	zCenter = getValue("zcenter", zCenter);
+	
+	if (exp0 !== null && exp1 !== null && exp2 !== null)
+	{
+		showGraph = true;
+	}
+	
+	updateGraph();
+	render();
+}
+
+</script>
+
+
+</head>
+
+
+<body onload="webGLStart();">
+	<canvas id="canvas" style="border: none;" width="500" height="500"></canvas>
+	
+	<div class="settings" id="settings">
+		<a class="hide-settings" href="javascript:void(0)" onclick="hideSettings()">Hide Settings</a>
+		
+		<form id="form">
+			<label class="field" for="eq0">x = </label><input class="option" type="text" id="eq0" value="" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="eq1">y = </label><input class="option" type="text" id="eq1" value="" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="eq2">z = </label><input class="option" type="text" id="eq2" value="" autocomplete="off" spellcheck="false" /><br/>
+			<br/>
+			<label class="field" for="smin">s-min:</label><input class="option" type="text" id="smin" value="-1" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="smax">s-max:</label><input class="option" type="text" id="smax" value="1" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="tmin">t-min:</label><input class="option" type="text" id="tmin" value="-1" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="tmax">t-max:</label><input class="option" type="text" id="tmax" value="1" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="sres">s-res:</label><input class="option" type="text" id="sres" value="50" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="tres">t-res:</label><input class="option" type="text" id="tres" value="50" autocomplete="off" spellcheck="false" /><br/>
+			<br/>
+			<label class="field" for="xcenter">x-center:</label><input class="option" type="text" id="xcenter" value="0" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="ycenter">y-center:</label><input class="option" type="text" id="ycenter" value="0" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="zcenter">z-center:</label><input class="option" type="text" id="zcenter" value="0" autocomplete="off" spellcheck="false" /><br/>
+			
+			<a href="" id="permalink" style="float:right">Permalink</a>
+			<button type="button" value="Apply" id="apply">Apply</button>
+		</form>
+	</div>
+	
+	<div class="axes">
+		<label class="axes" for="axes">Show axes</label><input type="checkbox" id="axes" checked="true"/>
+	</div>
+	
+	<div class="show-settings" id="show-settings">
+		<a class="show-settings" href="javascript:void(0)" onclick="showSettings()">Show Settings</a>
+	</div>
+</body>
+
+</html>
+
