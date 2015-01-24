@@ -33,7 +33,7 @@ function updateGraphSpecific()
 	initBuffers(gl);
 }
 
-//Returns the value of z at the specified position.
+//Returns the value of the given function at the specified t-value.
 function value(exp, t)
 {
 	return exp.eval([t, u, v]);

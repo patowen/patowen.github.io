@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<title>Parametric Surface</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="style-web-grapher.css"/>
+
+<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="expression.js"></script>
+
+<script type="text/javascript" src="graph3d.js"></script>
+
+<script type="text/javascript">
+
+var CS_CIRC = 0;
+var CS_SEMICIRC = 1;
+var CS_SQUARE = 2;
+var CS_SQUARE_CENTER = 3;
+var CS_TRI = 4;
+
+// Finds all the function values and update the graph to be rendered.
+function updateGraphSpecific()
+{
+	fun_y1 = Array();
+	fun_y2 = Array();
+	fun_dx1 = Array();
+	fun_dx2 = Array();
+	
+	for (var i=0; i<=xRes; i++)
+	{
+		var x = xMin + (xMax-xMin)*i/xRes;
+		fun_y1[i] = value1(x);
+		fun_y2[i] = value2(x);
+		fun_dx1[i] = partialX1(x);
+		fun_dx2[i] = partialX2(x);
+	}
+	
+	initBuffers(gl);
+}
+
+//Returns the value of y1 at the specified position.
+function value1(x)
+{
+	return exp0.eval([x, u, v]);
+}
+
+//Returns the value of y2 at the specified position.
+function value2(x)
+{
+	return exp1.eval([x, u, v]);
+}
+
+//Returns the partial derivative of y1 with respect to x at the specified position.
+function partialX1(x)
+{
+	return exp0.derivative([x, u, v], 0);
+}
+
+//Returns the partial derivative of y2 with respect to x at the specified position.
+function partialX2(x)
+{
+	return exp1.derivative([x, u, v], 0);
+}
+
+// Sets the vertex, normal, and order (index) arrays based on the function values.
+function initBuffers()
+{
+	var bufferRes = getCSNumVertices();
+	
+	var vertices = Array();
+	var normals = Array();
+	var order = Array();
+	var vc = 0, nc = 0, vic = 0, oc = 0;
+	
+	var vertexID = Array();
+	for (var i=0; i<=xRes; i++)
+	{
+		vertexID[i] = Array();
+		for (var j=0; j<=bufferRes; j++)
+		{
+			vertexID[i][j] = -1;
+		}
+	}
+	
+	for (var i=0; i<=xRes; i++)
+		for (var j=0; j<=bufferRes; j++)
+		{
+			var x = xMin + (xMax-xMin)*i/xRes;
+			var y = (getCSVertexY(j)+1)*(fun_y2[i]-fun_y1[i])/2 + fun_y1[i];
+			var z = getCSVertexZ(j)*(fun_y2[i]-fun_y1[i])/2;
+			var dy = (getCSVertexY(j)+1)*(fun_dx2[i]-fun_dx1[i])/2 + fun_dx1[i];
+			var dz = (getCSVertexZ(j))*(fun_dx2[i]-fun_dx1[i])/2;
+			
+			var nx, ny, nz, n1;
+			ny = -getCSNormalY(j); nz = -getCSNormalZ(j); nx = -dy*ny - dz*nz;
+			n1 = Math.sqrt(nx*nx + ny*ny + nz*nz);
+			nx /= n1; ny /= n1; nz /= n1;
+			if (fun_y2[i] < fun_y1[i]) {nx = -nx; ny = -ny; nz = -nz;}
+			
+			vertices[vc++] = x;
+			vertices[vc++] = y;
+			vertices[vc++] = z;
+			
+			normals[nc++] = nx;
+			normals[nc++] = ny;
+			normals[nc++] = nz;
+			
+			vertexID[i][j] = vic++;
+		}
+	
+	// Order
+	for (var i=0; i<xRes; i++)
+		for (var j=0; j<bufferRes; j++)
+		{
+			if (vertexID[i][j] < 0 || vertexID[i+1][j] < 0 || vertexID[i+1][j+1] < 0 || vertexID[i][j+1] < 0)
+				continue;
+			
+			order[oc++] = vertexID[i][j];
+			order[oc++] = vertexID[i+1][j];
+			order[oc++] = vertexID[i+1][j+1];
+			
+			order[oc++] = vertexID[i][j];
+			order[oc++] = vertexID[i+1][j+1];
+			order[oc++] = vertexID[i][j+1];
+		}
+	
+	// Caps
+	for (var i=0; i<=bufferRes; i++)
+	{
+		var y1Max = (getCSVertexY(i)+1)*(fun_y2[0]-fun_y1[0])/2 + fun_y1[0];
+		var z1Max = getCSVertexZ(i)*(fun_y2[0]-fun_y1[0])/2;
+		
+		var y2Max = (getCSVertexY(i)+1)*(fun_y2[xRes]-fun_y1[xRes])/2 + fun_y1[xRes];
+		var z2Max = getCSVertexZ(i)*(fun_y2[xRes]-fun_y1[xRes])/2;
+		
+		vertices[vc++] = xMin;
+		vertices[vc++] = y1Max;
+		vertices[vc++] = z1Max;
+		
+		vertices[vc++] = xMax;
+		vertices[vc++] = y2Max;
+		vertices[vc++] = z2Max;
+		
+		normals[nc++] =  1; normals[nc++] = 0; normals[nc++] = 0;
+		normals[nc++] = -1; normals[nc++] = 0; normals[nc++] = 0;
+		
+		vertexID[i] = Array();
+		vertexID[i][0] = vic++;
+		vertexID[i][1] = vic++;
+	}
+	
+	// Order
+	for (var i=0; i<bufferRes-1; i++)
+	{
+		if (vertexID[i][j] < 0 || vertexID[i+1][j] < 0 || vertexID[i+1][j+1] < 0 || vertexID[i][j+1] < 0)
+			continue;
+		
+		order[oc++] = vertexID[0][0]; order[oc++] = vertexID[i][0]; order[oc++] = vertexID[i+1][0];
+		order[oc++] = vertexID[0][1]; order[oc++] = vertexID[i+1][1]; order[oc++] = vertexID[i][1];
+	}
+	
+	setBuffers(vertices, normals, order);
+}
+
+// Returns the number of vertices in the active cross section. Vertices with
+// two different sets of normals are listed twice, once for each set of normals. This
+// is why a square has 8 vertices and a triangle has 6 vertices.
+function getCSNumVertices()
+{
+	switch (crossSection)
+	{
+	case CS_CIRC: return circRes;
+	case CS_SEMICIRC: return circRes+3;
+	case CS_SQUARE: return 8;
+	case CS_SQUARE_CENTER: return 8;
+	case CS_TRI: return 6;
+	}
+}
+
+// These methods assume the cross section is from -1 to 1. Shapes will always be similar to what is defined in these methods.
+	
+// Returns the y-coordinate of the specified vertex in the cross section.
+function getCSVertexY(vertex)
+{
+	if (vertex == getCSNumVertices())
+			vertex = 0;
+	
+	switch (crossSection)
+	{
+	case CS_CIRC: return Math.cos(vertex*2*Math.PI/circRes);
+	case CS_SEMICIRC:
+		if (vertex <= circRes) return Math.cos(vertex*Math.PI/circRes);
+		else if (vertex == circRes + 1) return -1;
+		else return 1;
+	case CS_SQUARE:
+	case CS_SQUARE_CENTER:
+		if (vertex >= 0 && vertex <= 3) return 1;
+		else return -1;
+	case CS_TRI:
+		if (vertex == 0 || vertex == 1) return 1;
+		else if (vertex == 2 || vertex == 3) return 0;
+		else return -1;
+	}
+}
+
+// Returns the z-coordinate of the specified vertex in the cross section.
+function getCSVertexZ(vertex)
+{
+	if (vertex == getCSNumVertices())
+		vertex = 0;
+	
+	switch (crossSection)
+	{
+	case CS_CIRC: return Math.sin(vertex*2*Math.PI/circRes);
+	case CS_SEMICIRC:
+		if (vertex <= circRes) return Math.sin(vertex*Math.PI/circRes);
+		else return 0;
+	case CS_SQUARE:
+		if (vertex >= 2 && vertex <= 5) return 2;
+		else return 0;
+	case CS_SQUARE_CENTER:
+		if (vertex >= 2 && vertex <= 5) return 1;
+		else return -1;
+	case CS_TRI:
+		if (vertex == 0 || vertex == 1) return 0;
+		else if (vertex == 2 || vertex == 3) return Math.sqrt(3);
+		else return 0;
+	}
+}
+
+// Returns the y-coordinate of the normal vector for the vertex
+// of the specified index in the cross section.
+function getCSNormalY(vertex)
+{
+	if (vertex == getCSNumVertices())
+		vertex = 0;
+	
+	switch (crossSection)
+	{
+	case CS_CIRC: return Math.cos(vertex*2*Math.PI/circRes);
+	case CS_SEMICIRC:
+		if (vertex <= circRes) return Math.cos(vertex*Math.PI/circRes);
+		else return 0;
+	case CS_SQUARE:
+	case CS_SQUARE_CENTER:
+		if (vertex == 1 || vertex == 2) return 1;
+		else if (vertex == 5 || vertex == 6) return -1;
+		else return 0;
+	case CS_TRI:
+		if (vertex == 1 || vertex == 2) return Math.sqrt(3)/2;
+		else if (vertex == 3 || vertex == 4) return -Math.sqrt(3)/2;
+		else return 0;
+	}
+}
+
+// Returns the z-coordinate of the normal vector for the vertex
+// of the specified index in the cross section.
+function getCSNormalZ(vertex)
+{
+	if (vertex == getCSNumVertices())
+		vertex = 0;
+	
+	switch (crossSection)
+	{
+	case CS_CIRC: return Math.sin(vertex*2*Math.PI/circRes);
+	case CS_SEMICIRC:
+		if (vertex <= circRes) return Math.sin(vertex*Math.PI/circRes);
+		else return -1;
+	case CS_SQUARE:
+	case CS_SQUARE_CENTER:
+		if (vertex == 7 || vertex == 0) return -1;
+		else if (vertex == 3 || vertex == 4) return 1;
+		else return 0;
+	case CS_TRI:
+		if (vertex >= 1 && vertex <= 4) return 0.5;
+		else return -1;
+	}
+}
+
+// Initializes all the settings to default values in case the text boxes
+// have invalid contents. Also updates the text boxes from the URL query.
+function initSettings()
+{
+	xRes = 50; circRes = 50;
+	xMin = -1; xMax = 1;
+	exp0 = null;
+	exp1 = null;
+	
+	crossSection = CS_SQUARE;
+	
+	setOptionsFromQuery();
+	updateSettings(null);
+	
+	resetTextField("eq0");
+	resetTextField("eq1");
+}
+
+// Updates all the settings from the text fields, as if the user hit Apply.
+function updateSettings(e)
+{
+	exp0 = getExpression("eq0", ['x', 'u', 'v'], exp0);
+	exp1 = getExpression("eq1", ['x', 'u', 'v'], exp1);
+	
+	xMin = getValue("xmin", xMin);
+	xMax = getValue("xmax", xMax);
+	xRes = getValue("xres", xRes);
+	circRes = getValue("circres", circRes);
+	xCenter = getValue("xcenter", xCenter);
+	yCenter = getValue("ycenter", yCenter);
+	zCenter = getValue("zcenter", zCenter);
+	
+	var crossSectionStr = document.getElementById("crosssection").value;
+	if (crossSectionStr === "circ") crossSection = CS_CIRC;
+	else if (crossSectionStr === "semicirc") crossSection = CS_SEMICIRC;
+	else if (crossSectionStr === "square") crossSection = CS_SQUARE;
+	else if (crossSectionStr === "squarecenter") crossSection = CS_SQUARE_CENTER;
+	else if (crossSectionStr === "tri") crossSection = CS_TRI;
+	
+	if (exp0 !== null && exp1 !== null)
+	{
+		showGraph = true;
+	}
+	
+	updateGraph();
+	render();
+}
+
+</script>
+
+
+</head>
+
+
+<body onload="webGLStart();">
+	<canvas id="canvas" style="border: none;" width="500" height="500"></canvas>
+	
+	<div class="settings" id="settings">
+		<a class="hide-settings" href="javascript:void(0)" onclick="hideSettings()">Hide Settings</a>
+		
+		<form id="form">
+			<label class="field" for="eq0">y1 = </label><input class="option" type="text" id="eq0" value="" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="eq1">y2 = </label><input class="option" type="text" id="eq1" value="" autocomplete="off" spellcheck="false" /><br/>
+			<br/>
+			<label class="field" for="xmin">x-min:</label><input class="option" type="text" id="xmin" value="-1" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="xmax">x-max:</label><input class="option" type="text" id="xmax" value="1" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="xres">x-res:</label><input class="option" type="text" id="xres" value="50" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="circres">circle-res:</label><input class="option" type="text" id="circres" value="50" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="crosssection">cross section:</label>
+			
+			<select class="option" id="crosssection">
+				<option value="circ">Circle</option>
+				<option value="semicirc">Semicircle</option>
+				<option value="square">Square (base)</option>
+				<option value="squarecenter">Square (center)</option>
+				<option value="tri">Triangle (base)</option>
+			</select><br/>
+			
+			<br/>
+			<label class="field" for="xcenter">x-center:</label><input class="option" type="text" id="xcenter" value="0" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="ycenter">y-center:</label><input class="option" type="text" id="ycenter" value="0" autocomplete="off" spellcheck="false" /><br/>
+			<label class="field" for="zcenter">z-center:</label><input class="option" type="text" id="zcenter" value="0" autocomplete="off" spellcheck="false" /><br/>
+			
+			<a href="" id="permalink" style="float:right">Permalink</a>
+			<button type="button" value="Apply" id="apply">Apply</button>
+		</form>
+	</div>
+	
+	<div class="axes">
+		<label class="axes" for="axes">Show axes</label><input type="checkbox" id="axes" checked="true"/>
+	</div>
+	
+	<div class="show-settings" id="show-settings">
+		<a class="show-settings" href="javascript:void(0)" onclick="showSettings()">Show Settings</a>
+	</div>
+</body>
+
+</html>
+

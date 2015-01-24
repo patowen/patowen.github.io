@@ -58,19 +58,19 @@ function updateGraphSpecific()
 	initBuffers(gl);
 }
 
-//Returns the value of z at the specified position.
+//Returns the value of the given function at the specified position.
 function value(exp, s, t)
 {
 	return exp.eval([s, t, u, v]);
 }
 
-//Returns the partial derivative with respect to x at the specified position.
+//Returns the partial derivative with respect to s at the specified position.
 function partialS(exp, s, t)
 {
 	return exp.derivative([s, t, u, v], 0);
 }
 
-//Returns the partial derivative with respect to y at the specified position.
+//Returns the partial derivative with respect to t at the specified position.
 function partialT(exp, s, t)
 {
 	return exp.derivative([s, t, u, v], 1);
