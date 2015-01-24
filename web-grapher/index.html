@@ -22,15 +22,83 @@
 		<p>Click one of the links below to get started. Each corresponds to a specific graph type.</p>
 		<h2>Function Graph</h2>
 		<p>
-			This graphs z in terms of x and y, each within a given range. It can be thought of as a heightmap
-			where the height is defined as a function of the location.
+			This graphs z in terms of x and y, where x and y are within a given range.
+			It can be pictured as defining the altitude of a piece of terrain based on location.
 		</p>
-		<p><a href="function-graph.html">Link</a></p>
+		<p><a href="function-graph.html">Start</a></p>
 		<p>Examples:
 		<ul>
 		<li><a href="function-graph.html?eq0=sqr(x)-sqr(y)">Hyperbolic Paraboloid</a></li>
 		<li><a href="function-graph.html?eq0=2(x%5E3y-y%5E3x)">Quartic Function</a></li>
 		<li><a href="function-graph.html?eq0=0.2*sin(8x)*sin(8y)">Bumpy Surface</a></li>
+		</ul>
+		</p>
+		
+		<h2>Parametric Curve</h2>
+		<p>
+			In this graph, x, y, and z are all defined independently with respect to t, which
+			can vary between a user-defined minimum and maximum value. The corresponding curve
+			is plotted.
+		</p>
+		<p><a href="parametric-curve.html">Start</a></p>
+		<p>Examples:
+		<ul>
+		<li><a href="parametric-curve.html?eq0=cos(t)&eq1=sin(t)&eq2=0.25t&tmin=-10&tmax=10&distance=10">Helix</a></li>
+		<li><a href="parametric-curve.html?eq0=sin(4t)*cos(t)&eq1=sin(4t)*sin(t)&eq2=0.2*sin(t+5u)&tmin=-pi&tmax=pi&xrot=0&zrot=0">8-Petal Rose with Depth</a></li>
+		<li><a href="parametric-curve.html?eq0=exp(t/10)*cos(t)&eq1=exp(t/10)*sin(t)&eq2=exp(t/10)&tmin=-100&tmax=100&tres=10000">Cone Spiral</a></li>
+		</ul>
+		</p>
+		
+		<h2>Parametric Surface</h2>
+		<p>
+			In this graph, x, y, and z are all defined independently with respect to s and t, which
+			can vary between a user-defined minimum and maximum value. The corresponding surface
+			is plotted.
+		</p>
+		<p><a href="parametric-surface.html">Start</a></p>
+		<p>Examples:
+		<ul>
+		<li><a href="parametric-surface.html?eq0=cos(s)*sin(t)&eq1=sin(s)*sin(t)&eq2=cos(t)&smin=-pi&smax=pi&tmin=0&tmax=pi">Sphere</a></li>
+		<li><a href="parametric-surface.html?eq0=cos(s)*((2+u)+sin(t))&eq1=sin(s)*((2+u)+sin(t))&eq2=cos(t)&smin=-pi&smax=pi&tmin=-pi&tmax=pi&distance=8">Torus</a></li>
+		<li><a href="parametric-surface.html?eq0=cos(s)*(1+t*cos(s/2))&eq1=sin(s)*(1+t*cos(s/2))&eq2=t*sin(s/2)&smin=-pi&smax=pi&tmin=-0.2&tmax=0.2">Möbius Strip</a></li>
+		<li><a href="parametric-surface.html?eq0=1.1%5Es*cos(s)&eq1=1.1%5Es*sin(s)&eq2=1.1%5Es*t&smin=-100&smax=100&tmin=-0.2&tmax=0.2&sres=5000&tres=1">Spiral</a></li>
+		</ul>
+		</p>
+		
+		<h2>Disk/Washer Graph</h2>
+		<p>
+			This graph takes the area between two functions with y defined in terms of x, and it revolves
+			the resulting region about the x-axis.
+		</p>
+		<p><a href="disk-graph.html">Start</a></p>
+		<p>Examples:
+		<ul>
+		</ul>
+		</p>
+		
+		<h2>Cylindrical Shell Graph</h2>
+		<p>
+			This graph takes the area between two functions with y defined in terms of x, and it revolves
+			the resulting region about the y-axis.
+		</p>
+		<p><a href="shell-graph.html">Start</a></p>
+		<p>Examples:
+		<ul>
+		</ul>
+		</p>
+		
+		<h2>Cross Section Graph</h2>
+		<p>
+			This graph takes the area between two functions with y defined in terms of x, and it replaces
+			each y-slice with a given shape defined in a drop-down menu such that any cross section
+			parallel to the yz-plane is the shape chosen. The choices are circle, semicircle (with the
+			diameter on the xy-plane), square (with either the base or the center on the xy-plane),
+			and triangle (with the base on the xy-plane).
+		</p>
+		<p><a href="cross-section-graph.html">Start</a></p>
+		<p>Examples:
+		<ul>
+		<li><a href="cross-section-graph.html?eq0=-sqrt(1-sqr(x))&eq1=sqrt(1-sqr(x))&xmin=-0.99999&xmax=0.99999&crosssection=square&zcenter=1">Circular Base with Square Cross Sections</a></li>
 		</ul>
 		</p>
 	</div>

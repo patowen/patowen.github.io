@@ -276,9 +276,15 @@ function renderAxes()
 	gl.uniform3fv(shaderProgram.ambientColorUniform, [1, 0, 0]);
 	gl.drawElements(gl.LINES, 2, gl.UNSIGNED_SHORT, 0);
 	gl.uniform3fv(shaderProgram.ambientColorUniform, [0, 1, 0]);
-	gl.drawElements(gl.LINES, 2, gl.UNSIGNED_SHORT, 4);
+	if (swapAxes)
+		gl.drawElements(gl.LINES, 2, gl.UNSIGNED_SHORT, 8);
+	else
+		gl.drawElements(gl.LINES, 2, gl.UNSIGNED_SHORT, 4);
 	gl.uniform3fv(shaderProgram.ambientColorUniform, [0, 0, 1]);
-	gl.drawElements(gl.LINES, 2, gl.UNSIGNED_SHORT, 8);
+	if (swapAxes)
+		gl.drawElements(gl.LINES, 2, gl.UNSIGNED_SHORT, 4);
+	else
+		gl.drawElements(gl.LINES, 2, gl.UNSIGNED_SHORT, 8);
 }
 
 // Renders the graph based on the contents of the vertex, normal, and element buffers.
@@ -352,6 +358,7 @@ function webGLStart()
 	initGL();
 	initShaders();
 	renderLines = false;
+	swapAxes = false;
 	initSettings();
 	
 	canvas.onmousedown = handleMouseDown;

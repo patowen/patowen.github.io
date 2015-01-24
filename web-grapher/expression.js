@@ -116,7 +116,7 @@ Quotient.prototype.eval = function(x)
 Quotient.prototype.derivative = function(x, type)
 {
 	var v2 = this.e2.eval(x);
-	return (v2 * this.e1.derivative(x, type) + this.e1.eval(x) * this.e2.derivative(x, type)) / (v2*v2);
+	return (v2 * this.e1.derivative(x, type) - this.e1.eval(x) * this.e2.derivative(x, type)) / (v2*v2);
 };
 
 
